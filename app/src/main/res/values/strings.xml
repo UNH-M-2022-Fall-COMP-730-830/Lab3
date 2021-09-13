@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Tip Calculator</string>
+    <string name="bill_title">Bill</string>
+    <string name="amount_hint">Amount</string>
+    <string name="percent_hint">Tip Percent</string>
+    <string name="strategy_hint">Tip Round Strategy</string>
+    <string name="action_calculate">Calculate</string>
+    <string name="tip_hint">Tip</string>
+    <string name="money_pattern">$%.2f</string>
+    <string name="total_hint">Total</string>
+</resources>
