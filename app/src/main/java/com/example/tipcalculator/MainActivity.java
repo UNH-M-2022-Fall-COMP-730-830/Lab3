@@ -6,6 +6,11 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.tipcalculator.tipstrategy.CustomTipStrategy;
+import com.example.tipcalculator.tipstrategy.DefaultTipStrategy;
+import com.example.tipcalculator.tipstrategy.RoundDownTipStrategy;
+import com.example.tipcalculator.tipstrategy.RoundUpTipStrategy;
+import com.example.tipcalculator.tipstrategy.TipStrategy;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.textfield.TextInputEditText;
@@ -34,16 +39,16 @@ public class MainActivity extends AppCompatActivity {
         tipAmountContainer.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
             if (isChecked) {
                 int selectedTipPercent = getSelectedTipPercent(checkedId);
-                TipSettings settings = new TipSettings();
+                TipSettings settings = TipSettings.getInstance(); // global access to the single instance of TipSettings
                 settings.setTipPercent(selectedTipPercent);
             }
         });
 
         tipStrategyContainer.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
             if (isChecked) {
-                int selectedStrategy = getSelectedTipStrategy(checkedId);
-                TipSettings settings = new TipSettings();
-                settings.setTipStrategy(selectedStrategy);
+                TipStrategy selectedStrategy = getSelectedTipStrategy(checkedId);
+                TipSettings settings = TipSettings.getInstance();
+                settings.setTipStrategy(selectedStrategy); // selecting the algorithm at runtime.
             }
         });
 
@@ -60,31 +65,15 @@ public class MainActivity extends AppCompatActivity {
         }
         String amountString = amountEditText.getText().toString();
         try {
-            TipSettings settings = new TipSettings();
+            TipSettings settings = TipSettings.getInstance(); // global access to the single instance of TipSettings
 
-            int tipStrategy = settings.getTipStrategy();
+            TipStrategy tipStrategy = settings.getTipStrategy();
             int tipPercent = settings.getTipPercent();
-
             double amount = Double.parseDouble(amountString);
 
-            double tipAmount = 0;
-
-            // TODO 2: Implement tip strategy algorithm using Strategy Design Pattern.
-            // TODO 3: Add Custom tip strategy
-            switch (tipStrategy) {
-                case 0: // Default
-                    tipAmount = amount * tipPercent * 0.01;
-                    break;
-                case 1: // Round up
-                    double nonRounded = amount * tipPercent * 0.01;
-                    tipAmount = Math.ceil(nonRounded);
-                    break;
-                case 2: // Round Down
-                    double nonRounded2 = amount * tipPercent * 0.01;
-                    tipAmount = Math.floor(nonRounded2);
-                    break;
-            }
-
+            // Use strategy method to calculate the result. It makes MainActivity independent of how
+            // the algorithm is implemented.
+            double tipAmount = tipStrategy.calculate(amount, tipPercent);
             double totalAmount = amount + tipAmount;
 
             showTip(tipAmount, totalAmount);
@@ -115,12 +104,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private int getSelectedTipStrategy(int checkedId) {
+    private TipStrategy getSelectedTipStrategy(int checkedId) {
         switch (checkedId) {
-            case R.id.defaultButton: return 0;
-            case R.id.roundUp: return 1;
-            case R.id.roundDown: return 2;
-            default: return 0;
+            case R.id.defaultButton: return new DefaultTipStrategy();
+            case R.id.roundUp: return new RoundUpTipStrategy();
+            case R.id.roundDown: return new RoundDownTipStrategy();
+            case R.id.custom: return new CustomTipStrategy();
+            default: return new DefaultTipStrategy();
         }
     }
 }

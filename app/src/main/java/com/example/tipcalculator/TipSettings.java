@@ -1,9 +1,25 @@
 package com.example.tipcalculator;
 
-// TODO 1: Turn TipSettings into Singleton
+import com.example.tipcalculator.tipstrategy.DefaultTipStrategy;
+import com.example.tipcalculator.tipstrategy.TipStrategy;
+
+// Singleton class
 public class TipSettings {
     private int tipPercent = 20;
-    private int tipStrategy = 0;
+    private TipStrategy tipStrategy = new DefaultTipStrategy();
+
+    private static TipSettings INSTANCE;
+
+    private TipSettings() {
+    }
+
+    public static TipSettings getInstance() {
+        // Lazy initialization. INSTANCE won't be initialized until the first getInstance() call.
+        if (INSTANCE == null)
+            INSTANCE = new TipSettings();
+
+        return INSTANCE;
+    }
 
     public int getTipPercent() {
         return tipPercent;
@@ -13,11 +29,11 @@ public class TipSettings {
         tipPercent = value;
     }
 
-    public int getTipStrategy() {
+    public TipStrategy getTipStrategy() {
         return tipStrategy;
     }
 
-    public void setTipStrategy(int value) {
+    public void setTipStrategy(TipStrategy value) {
         tipStrategy = value;
     }
 }
